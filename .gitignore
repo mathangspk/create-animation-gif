@@ -1,0 +1,18 @@
+# Ignore the virtual environment folder
+animation-gif/
+.venv/
+env/
+.env/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore IDE/editor files
+.idea/
+.vscode/
+
+# Ignore system files
+.DS_Store
+Thumbs.db

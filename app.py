@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from gif_creator import GifCreator
 from preview_frame import PreviewFrame
+from template_manager import TemplateManager
 from PIL import Image, ImageTk
 import os
 
@@ -105,6 +106,14 @@ class GifCreatorApp:
 
         # Show or hide custom resolution fields based on dropdown selection
         self.resolution_var.trace("w", self.toggle_custom_resolution_fields)
+
+        # Nút để lưu template
+        self.save_template_button = tk.Button(self.left_frame, text="Save Template", command=self.save_template)
+        self.save_template_button.pack(pady=10)
+
+        # Nút để mở template
+        self.load_template_button = tk.Button(self.left_frame, text="Load Template", command=self.load_template)
+        self.load_template_button.pack(pady=10)
 
     def toggle_custom_resolution_fields(self, *args):
         """
@@ -286,6 +295,49 @@ class GifCreatorApp:
         resolution = self.get_resolution()  # Get the selected resolution
         if self.images:
             self.preview_frame.show_preview([img.split('__')[0] for img in self.images], int(self.duration_entry.get()), resolution)
+    
+    def save_template(self):
+        # Thu thập thông tin từ giao diện người dùng
+        images = self.images
+        duration = self.duration_entry.get()
+        loop = self.loop_entry.get()
+        resolution = self.resolution_var.get()
+
+        # Lấy thông tin custom resolution nếu được chọn
+        custom_width = self.custom_width_entry.get() if resolution == "Custom" else ""
+        custom_height = self.custom_height_entry.get() if resolution == "Custom" else ""
+
+        # Gọi TemplateManager để lưu template
+        TemplateManager.save_template(images, duration, loop, resolution, custom_width, custom_height)
+
+    def load_template(self):
+        # Gọi TemplateManager để mở template
+        template_data = TemplateManager.load_template()
+
+        if template_data:
+            # Khôi phục lại trạng thái từ file template
+            self.images = template_data.get("images", [])
+            self.duration_entry.delete(0, tk.END)
+            self.duration_entry.insert(0, template_data.get("duration", "200"))
+
+            self.loop_entry.delete(0, tk.END)
+            self.loop_entry.insert(0, template_data.get("loop", "0"))
+
+            resolution = template_data.get("resolution", "Original")
+            self.resolution_var.set(resolution)
+
+            if resolution == "Custom":
+                self.custom_width_entry.delete(0, tk.END)
+                self.custom_width_entry.insert(0, template_data.get("custom_width", ""))
+
+                self.custom_height_entry.delete(0, tk.END)
+                self.custom_height_entry.insert(0, template_data.get("custom_height", ""))
+
+            # Cập nhật lại Listbox và thumbnail
+            self.update_listbox()
+            self.update_thumbnails()
+
+            messagebox.showinfo("Success", "Template loaded successfully!")
 
 
 # Main application entry point

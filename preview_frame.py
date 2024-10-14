@@ -51,6 +51,8 @@ class PreviewFrame:
         Display the current frame and recursively call itself to display the next one.
         """
         if self.tk_frames:
+              # Xóa các ảnh đã được hiển thị trước đó để tránh hiện tượng chồng ảnh
+            self.canvas.delete("all")
             # Display the current frame on the canvas
             self.canvas.create_image(0, 0, anchor=tk.NW, image=self.tk_frames[self.current_frame])
 
